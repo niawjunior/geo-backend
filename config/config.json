@@ -1,0 +1,26 @@
+{
+  "development": {
+    "username": "geo-user",
+    "password": "geo-password",
+    "database": "geo_database",
+    "host": "localhost",
+    "port": 5432,
+    "dialect": "postgres"
+  },
+  "test": {
+    "username": "geo-user",
+    "password": "geo-password",
+    "database": "geo_database",
+    "host": "localhost",
+    "port": 5432,
+    "dialect": "postgres"
+  },
+  "production": {
+    "username": "geo-user",
+    "password": "geo-password",
+    "database": "geo_database",
+    "host": "localhost",
+    "port": 5432,
+    "dialect": "postgres"
+  }
+}
