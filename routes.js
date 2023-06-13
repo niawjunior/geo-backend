@@ -1,10 +1,13 @@
 const express = require("express");
 const router = express.Router();
 const User = require("./models/User");
+const RefreshToken = require("./models/RefreshToken");
 const {
   hashPassword,
   comparePassword,
   generateToken,
+  generateRefreshToken,
+  calculateExpirationDate,
 } = require("./utils/auth");
 
 router.post("/register", async (req, res) => {
@@ -14,9 +17,6 @@ router.post("/register", async (req, res) => {
 
     // Hash the password
     const passwordHash = await hashPassword(password);
-
-    console.log(username);
-    console.log(passwordHash);
     // Create a new user object
     const user = await User.create({
       username,
@@ -30,7 +30,6 @@ router.post("/register", async (req, res) => {
     res.json({ message: "User registered successfully" });
   } catch (error) {
     // Handle registration error
-    console.error(error);
 
     // Check for specific validation errors
     if (error.name === "SequelizeUniqueConstraintError") {
@@ -58,12 +57,55 @@ router.post("/login", async (req, res) => {
     // Generate a JWT token
     const token = generateToken({ username: user.username });
 
+    // Generate a refresh token
+    const refreshToken = generateRefreshToken();
+
+    // Calculate the expiration date for the refresh token
+    const expiresAt = calculateExpirationDate();
+
+    // Save the refresh token to the database
+    await RefreshToken.create({
+      userId: user.id,
+      token: refreshToken,
+      expiresAt,
+    });
+
     // Respond with the token
-    res.json({ token });
+    res.json({ token, refreshToken });
   } catch (error) {
+    console.log(error);
     // Handle login error
-    console.error(error);
     res.status(500).json({ error: "An error occurred during login" });
+  }
+});
+
+router.post("/refresh-token", async (req, res) => {
+  try {
+    const { refreshToken } = req.body;
+
+    // Verify the refresh token against the stored tokens in the database
+    const token = await RefreshToken.findOne({
+      where: { token: refreshToken },
+    });
+
+    if (!token || token.expiresAt < new Date()) {
+      return res
+        .status(401)
+        .json({ error: "Invalid or expired refresh token" });
+    }
+
+    const user = await User.findOne({ where: { id: token.userId } });
+
+    // Generate a new access token
+    const accessToken = generateToken({ username: user.username });
+
+    // Respond with the new access token
+    res.json({ accessToken });
+  } catch (error) {
+    console.error(error);
+    res
+      .status(500)
+      .json({ error: "An error occurred while refreshing the access token" });
   }
 });
 
