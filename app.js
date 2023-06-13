@@ -6,7 +6,8 @@ const port = 3000;
 app.use(express.json());
 
 // Routes
-const router = require("./routes");
+const router = require("./routes/index");
+
 app.use("/api", router);
 
 // Start the server

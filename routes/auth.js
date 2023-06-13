@@ -1,67 +1,18 @@
 const express = require("express");
 const router = express.Router();
-const User = require("./models/User");
-const RefreshToken = require("./models/RefreshToken");
-const BlacklistedToken = require("./models/BlacklistedToken");
-
+const User = require("../models/User");
+const RefreshToken = require("../models/RefreshToken");
+const BlacklistedToken = require("../models/BlacklistedToken");
+const authenticate = require("../middlewares/authenticate");
 const {
   hashPassword,
   comparePassword,
   generateToken,
   generateRefreshToken,
   calculateExpirationDate,
-  verifyToken,
-} = require("./utils/auth");
+} = require("../utils/auth");
 
-// Middleware to verify the JWT token
-const authenticate = (req, res, next) => {
-  const token = req.headers.authorization;
-
-  if (!token) {
-    return res.status(401).json({ error: "Missing authorization token" });
-  }
-
-  try {
-    const decoded = verifyToken(token);
-    req.user = decoded;
-    next();
-  } catch (error) {
-    return res.status(401).json({ error: "Invalid authorization token" });
-  }
-};
-
-// Protected route to retrieve user's credentials
-router.get("/users/me", authenticate, async (req, res) => {
-  try {
-    // Get the user ID from the decoded token
-    const { id } = req.user;
-    const accessToken = req.headers.authorization;
-    const blacklistedToken = await BlacklistedToken.findOne({
-      where: { token: accessToken },
-    });
-
-    if (blacklistedToken) {
-      return res.status(401).json({ error: "Access token revoked" });
-    }
-
-    // Fetch the user data from the database
-    const user = await User.findByPk(id, {
-      attributes: { exclude: ["passwordHash"] },
-    });
-
-    if (!user) {
-      return res.status(404).json({ error: "User not found" });
-    }
-    // Respond with the user's credentials
-    res.json({ user });
-  } catch (error) {
-    // Handle error
-    console.error(error);
-    res.status(500).json({ error: "An error occurred" });
-  }
-});
-
-router.post("/auth/register", async (req, res) => {
+router.post("/register", async (req, res) => {
   try {
     // Extract the user data from the request body
     const { username, password } = req.body;
@@ -92,7 +43,7 @@ router.post("/auth/register", async (req, res) => {
   }
 });
 
-router.post("/auth/logout", authenticate, async (req, res) => {
+router.post("/logout", authenticate, async (req, res) => {
   try {
     // Get the access token from the request headers
     const accessToken = req.headers.authorization;
@@ -117,7 +68,7 @@ router.post("/auth/logout", authenticate, async (req, res) => {
   }
 });
 
-router.post("/auth/login", async (req, res) => {
+router.post("/login", async (req, res) => {
   try {
     // Extract the user data from the request body
     const { username, password } = req.body;
@@ -155,7 +106,7 @@ router.post("/auth/login", async (req, res) => {
   }
 });
 
-router.post("/auth/refresh-token", async (req, res) => {
+router.post("/refresh-token", async (req, res) => {
   try {
     const { refreshToken } = req.body;
 
