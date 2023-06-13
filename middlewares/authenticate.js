@@ -5,7 +5,7 @@ const authenticate = (req, res, next) => {
   const token = req.headers.authorization;
 
   if (!token) {
-    return res.status(401).json({ error: "Missing authorization token" });
+    return res.status(401).json({ message: "Missing authorization token" });
   }
 
   try {
@@ -13,7 +13,7 @@ const authenticate = (req, res, next) => {
     req.user = decoded;
     next();
   } catch (error) {
-    return res.status(401).json({ error: "Invalid authorization token" });
+    return res.status(401).json({ message: "Invalid authorization token" });
   }
 };
 

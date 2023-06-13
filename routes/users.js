@@ -15,7 +15,7 @@ router.get("/me", authenticate, async (req, res) => {
     });
 
     if (blacklistedToken) {
-      return res.status(401).json({ error: "Access token revoked" });
+      return res.status(401).json({ message: "Access token revoked" });
     }
 
     // Fetch the user data from the database
@@ -24,14 +24,14 @@ router.get("/me", authenticate, async (req, res) => {
     });
 
     if (!user) {
-      return res.status(404).json({ error: "User not found" });
+      return res.status(404).json({ message: "User not found" });
     }
     // Respond with the user's credentials
     res.json({ user });
   } catch (error) {
     // Handle error
     console.error(error);
-    res.status(500).json({ error: "An error occurred" });
+    res.status(500).json({ message: "An error occurred" });
   }
 });
 

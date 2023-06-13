@@ -56,7 +56,7 @@ router.post("/logout", authenticate, async (req, res) => {
     if (!isBlacklisted) {
       await BlacklistedToken.create({ token: accessToken });
     } else {
-      return res.status(401).json({ error: "Access token revoked" });
+      return res.status(401).json({ message: "Access token revoked" });
     }
 
     // Respond with a success message
@@ -64,7 +64,7 @@ router.post("/logout", authenticate, async (req, res) => {
   } catch (error) {
     // Handle error
     console.error(error);
-    res.status(500).json({ error: "An error occurred during logout" });
+    res.status(500).json({ message: "An error occurred during logout" });
   }
 });
 
@@ -78,7 +78,7 @@ router.post("/login", async (req, res) => {
 
     // If the user does not exist or the password is incorrect, return an error response
     if (!user || !(await comparePassword(password, user.passwordHash))) {
-      return res.status(401).json({ error: "Invalid username or password" });
+      return res.status(401).json({ message: "Invalid username or password" });
     }
 
     // Generate a JWT token
@@ -102,7 +102,7 @@ router.post("/login", async (req, res) => {
   } catch (error) {
     console.log(error);
     // Handle login error
-    res.status(500).json({ error: "An error occurred during login" });
+    res.status(500).json({ message: "An error occurred during login" });
   }
 });
 
@@ -118,7 +118,7 @@ router.post("/refresh", async (req, res) => {
     if (!token || token.expiresAt < new Date()) {
       return res
         .status(401)
-        .json({ error: "Invalid or expired refresh token" });
+        .json({ message: "Invalid or expired refresh token" });
     }
 
     const user = await User.findOne({ where: { id: token.userId } });
@@ -132,7 +132,7 @@ router.post("/refresh", async (req, res) => {
     console.error(error);
     res
       .status(500)
-      .json({ error: "An error occurred while refreshing the access token" });
+      .json({ message: "An error occurred while refreshing the access token" });
   }
 });
 
