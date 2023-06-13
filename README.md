@@ -6,7 +6,13 @@ sequelize init
 
 2. Once the project structure is initialized, open the config/config.json file and update it with your database configuration details, such as the database name, username, password, and host.
 
-3. After updating the config/config.json file, run the migration command again:
+3. Create migration file
+
+```
+sequelize migration:generate --name create-refresh-tokens
+```
+
+4. After updating the config/config.json file, run the migration command again:
 
 ```
 sequelize db:migrate
