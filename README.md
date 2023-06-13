@@ -1,3 +1,25 @@
+# Docker
+
+1. Build and Run Database
+
+```
+docker-compose up -d
+```
+
+2. Stop Container
+
+```
+docker-compose down
+```
+
+3. Check Volume
+
+```
+docker volume ls
+```
+
+# Application
+
 1. Run the following command to initialize the Sequelize project structure:
 
 ```
@@ -16,4 +38,10 @@ sequelize migration:generate --name create-refresh-tokens
 
 ```
 sequelize db:migrate
+```
+
+5. Run Backend Application
+
+```
+npm run dev
 ```
