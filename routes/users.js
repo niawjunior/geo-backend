@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const authenticate = require("../middlewares/authenticate");
+const User = require("../models/User");
 
 const BlacklistedToken = require("../models/BlacklistedToken");
 
